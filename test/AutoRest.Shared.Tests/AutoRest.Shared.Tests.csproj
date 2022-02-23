@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Core" Version="1.22.0" />
+    <PackageReference Include="Azure.Core" Version="1.23.0-alpha.20220223.2" />
 
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
@@ -16,6 +16,9 @@
     <PackageReference Include="Azure.ResourceManager" Version="1.0.0-alpha.20220213.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="Azure.Core.Pipeline.HttpClientTransport.EnableCookies" Value="false" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="../../src/assets/**/*.cs" />
   </ItemGroup>
