@@ -77,10 +77,8 @@ namespace Azure.Security.ConfidentialLedger
         /// Response response = await client.GetLedgerIdentityAsync("<ledgerId>");
         /// 
         /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
-        /// Console.WriteLine(result.GetProperty("statusCode").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("contents").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("collectionId").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("transactionId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerTlsCertificate").ToString());
         /// ]]></code>
         /// </example>
         /// <remarks>
@@ -90,18 +88,10 @@ namespace Azure.Security.ConfidentialLedger
         /// 
         /// Response Body:
         /// 
-        /// Schema for <c>ResourceOkResponse</c>:
+        /// Schema for <c>LedgerIdentityInformation</c>:
         /// <code>{
-        ///   statusCode: number, # Required.
-        ///   value: [
-        ///     {
-        ///       contents: string, # Required.
-        ///       collectionId: string, # Required.
-        ///       transactionId: string, # Required.
-        ///     }
-        ///   ], # Required.
-        ///   nextLink: {
-        ///   }, # Optional.
+        ///   ledgerId: string, # Required.
+        ///   ledgerTlsCertificate: string, # Required.
         /// }
         /// </code>
         /// 
@@ -141,10 +131,8 @@ namespace Azure.Security.ConfidentialLedger
         /// Response response = client.GetLedgerIdentity("<ledgerId>");
         /// 
         /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
-        /// Console.WriteLine(result.GetProperty("statusCode").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("contents").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("collectionId").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("transactionId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerTlsCertificate").ToString());
         /// ]]></code>
         /// </example>
         /// <remarks>
@@ -154,18 +142,10 @@ namespace Azure.Security.ConfidentialLedger
         /// 
         /// Response Body:
         /// 
-        /// Schema for <c>ResourceOkResponse</c>:
+        /// Schema for <c>LedgerIdentityInformation</c>:
         /// <code>{
-        ///   statusCode: number, # Required.
-        ///   value: [
-        ///     {
-        ///       contents: string, # Required.
-        ///       collectionId: string, # Required.
-        ///       transactionId: string, # Required.
-        ///     }
-        ///   ], # Required.
-        ///   nextLink: {
-        ///   }, # Optional.
+        ///   ledgerId: string, # Required.
+        ///   ledgerTlsCertificate: string, # Required.
         /// }
         /// </code>
         /// 

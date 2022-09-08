@@ -8,17 +8,14 @@
 using System.Text.Json;
 using Azure;
 using Azure.Core;
-using ConfidentialLedger;
 
-namespace Foundations
+namespace ConfidentialLedger
 {
-    public partial class ResourceCreatedResponse : IUtf8JsonSerializable
+    public partial class LedgerUser : IUtf8JsonSerializable
     {
         void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
         {
             writer.WriteStartObject();
-            writer.WritePropertyName("statusCode");
-            writer.WriteNumberValue(StatusCode);
             writer.WritePropertyName("userId");
             writer.WriteStringValue(UserId);
             writer.WritePropertyName("assignedRole");
@@ -26,18 +23,12 @@ namespace Foundations
             writer.WriteEndObject();
         }
 
-        internal static ResourceCreatedResponse DeserializeResourceCreatedResponse(JsonElement element)
+        internal static LedgerUser DeserializeLedgerUser(JsonElement element)
         {
-            int statusCode = default;
             string userId = default;
             LedgerUserRole assignedRole = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("statusCode"))
-                {
-                    statusCode = property.Value.GetInt32();
-                    continue;
-                }
                 if (property.NameEquals("userId"))
                 {
                     userId = property.Value.GetString();
@@ -49,7 +40,7 @@ namespace Foundations
                     continue;
                 }
             }
-            return new ResourceCreatedResponse(statusCode, userId, assignedRole);
+            return new LedgerUser(userId, assignedRole);
         }
 
         internal RequestContent ToRequestContent()
@@ -59,10 +50,10 @@ namespace Foundations
             return content;
         }
 
-        internal static ResourceCreatedResponse FromResponse(Response response)
+        internal static LedgerUser FromResponse(Response response)
         {
             using var document = JsonDocument.Parse(response.Content);
-            return DeserializeResourceCreatedResponse(document.RootElement);
+            return DeserializeLedgerUser(document.RootElement);
         }
     }
 }

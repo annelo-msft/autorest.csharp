@@ -7,28 +7,23 @@
 
 using System;
 using Azure.Core;
-using ConfidentialLedger;
 
-namespace Foundations
+namespace ConfidentialLedger
 {
-    /// <summary> A  resource was successfully created. </summary>
-    public partial class ResourceCreatedResponse
+    /// <summary> Details about a Confidential ledger user. </summary>
+    public partial class LedgerUser
     {
-        /// <summary> Initializes a new instance of ResourceCreatedResponse. </summary>
-        /// <param name="statusCode"></param>
+        /// <summary> Initializes a new instance of LedgerUser. </summary>
         /// <param name="userId"></param>
         /// <param name="assignedRole"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
-        public ResourceCreatedResponse(int statusCode, string userId, LedgerUserRole assignedRole)
+        public LedgerUser(string userId, LedgerUserRole assignedRole)
         {
             Argument.AssertNotNull(userId, nameof(userId));
 
-            StatusCode = statusCode;
             UserId = userId;
             AssignedRole = assignedRole;
         }
-
-        public int StatusCode { get; set; }
 
         public string UserId { get; set; }
 
