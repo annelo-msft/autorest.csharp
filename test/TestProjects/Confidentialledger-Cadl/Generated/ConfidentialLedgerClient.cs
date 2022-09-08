@@ -40,7 +40,7 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="endpoint"> The Uri to use. </param>
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new AzureSecurityConfidentialledgerClientOptions())
+        public ConfidentialLedgerClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new ConfidentialLedgerClientOptions())
         {
         }
 
@@ -49,17 +49,57 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerClient(Uri endpoint, TokenCredential credential, AzureSecurityConfidentialledgerClientOptions options)
+        public ConfidentialLedgerClient(Uri endpoint, TokenCredential credential, ConfidentialLedgerClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNull(credential, nameof(credential));
-            options ??= new AzureSecurityConfidentialledgerClientOptions();
+            options ??= new ConfidentialLedgerClientOptions();
 
             ClientDiagnostics = new ClientDiagnostics(options, true);
             _tokenCredential = credential;
             _pipeline = HttpPipelineBuilder.Build(options, Array.Empty<HttpPipelinePolicy>(), new HttpPipelinePolicy[] { new BearerTokenAuthenticationPolicy(_tokenCredential, AuthorizationScopes) }, new ResponseClassifier());
             _endpoint = endpoint;
             _apiVersion = options.Version;
+        }
+
+        /// <summary> Retrieves a list of collection ids present in the Confidential Ledger. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <remarks> Collection ids are user-created collections of ledger entries. </remarks>
+        public virtual async Task<Response<Collection>> ListCollectionValuesAsync(CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.ListCollectionValues");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await ListCollectionsAsync(context).ConfigureAwait(false);
+                return Response.FromValue(Collection.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Retrieves a list of collection ids present in the Confidential Ledger. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <remarks> Collection ids are user-created collections of ledger entries. </remarks>
+        public virtual Response<Collection> ListCollectionValues(CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.ListCollectionValues");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = ListCollections(context);
+                return Response.FromValue(Collection.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
         }
 
         /// <summary> Retrieves a list of collection ids present in the Confidential Ledger. </summary>
@@ -263,7 +303,7 @@ namespace Azure.Security.ConfidentialLedger
         /// <summary> Gets the constitution used for governance. </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <remarks> The constitution is a script that assesses and applies proposals from consortium members. </remarks>
-        public virtual async Task<Response> GetConstitutionValueAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<Response<Constitution>> GetConstitutionValueAsync(CancellationToken cancellationToken = default)
         {
             using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetConstitutionValue");
             scope.Start();
@@ -271,7 +311,7 @@ namespace Azure.Security.ConfidentialLedger
             {
                 RequestContext context = FromCancellationToken(cancellationToken);
                 Response response = await GetConstitutionAsync(context).ConfigureAwait(false);
-                return response;
+                return Response.FromValue(Constitution.FromResponse(response), response);
             }
             catch (Exception e)
             {
@@ -283,7 +323,7 @@ namespace Azure.Security.ConfidentialLedger
         /// <summary> Gets the constitution used for governance. </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <remarks> The constitution is a script that assesses and applies proposals from consortium members. </remarks>
-        public virtual Response GetConstitutionValue(CancellationToken cancellationToken = default)
+        public virtual Response<Constitution> GetConstitutionValue(CancellationToken cancellationToken = default)
         {
             using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetConstitutionValue");
             scope.Start();
@@ -291,7 +331,7 @@ namespace Azure.Security.ConfidentialLedger
             {
                 RequestContext context = FromCancellationToken(cancellationToken);
                 Response response = GetConstitution(context);
-                return response;
+                return Response.FromValue(Constitution.FromResponse(response), response);
             }
             catch (Exception e)
             {
@@ -303,19 +343,36 @@ namespace Azure.Security.ConfidentialLedger
         /// <summary> Gets the constitution used for governance. </summary>
         /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
+        /// <returns> The response returned from the service. Details of the response body schema are in the Remarks section below. </returns>
         /// <example>
-        /// This sample shows how to call GetConstitutionAsync.
+        /// This sample shows how to call GetConstitutionAsync and parse the result.
         /// <code><![CDATA[
         /// var credential = new DefaultAzureCredential();
         /// var endpoint = new Uri("<https://my-service.azure.com>");
         /// var client = new ConfidentialLedgerClient(endpoint, credential);
         /// 
         /// Response response = await client.GetConstitutionAsync();
-        /// Console.WriteLine(response.Status);
+        /// 
+        /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+        /// Console.WriteLine(result.GetProperty("digest").ToString());
+        /// Console.WriteLine(result.GetProperty("script").ToString());
         /// ]]></code>
         /// </example>
-        /// <remarks> The constitution is a script that assesses and applies proposals from consortium members. </remarks>
+        /// <remarks>
+        /// The constitution is a script that assesses and applies proposals from consortium members.
+        /// 
+        /// Below is the JSON schema for the response payload.
+        /// 
+        /// Response Body:
+        /// 
+        /// Schema for <c>Constitution</c>:
+        /// <code>{
+        ///   digest: string, # Required.
+        ///   script: string, # Required.
+        /// }
+        /// </code>
+        /// 
+        /// </remarks>
         public virtual async Task<Response> GetConstitutionAsync(RequestContext context = null)
         {
             using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetConstitution");
@@ -335,19 +392,36 @@ namespace Azure.Security.ConfidentialLedger
         /// <summary> Gets the constitution used for governance. </summary>
         /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
+        /// <returns> The response returned from the service. Details of the response body schema are in the Remarks section below. </returns>
         /// <example>
-        /// This sample shows how to call GetConstitution.
+        /// This sample shows how to call GetConstitution and parse the result.
         /// <code><![CDATA[
         /// var credential = new DefaultAzureCredential();
         /// var endpoint = new Uri("<https://my-service.azure.com>");
         /// var client = new ConfidentialLedgerClient(endpoint, credential);
         /// 
         /// Response response = client.GetConstitution();
-        /// Console.WriteLine(response.Status);
+        /// 
+        /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+        /// Console.WriteLine(result.GetProperty("digest").ToString());
+        /// Console.WriteLine(result.GetProperty("script").ToString());
         /// ]]></code>
         /// </example>
-        /// <remarks> The constitution is a script that assesses and applies proposals from consortium members. </remarks>
+        /// <remarks>
+        /// The constitution is a script that assesses and applies proposals from consortium members.
+        /// 
+        /// Below is the JSON schema for the response payload.
+        /// 
+        /// Response Body:
+        /// 
+        /// Schema for <c>Constitution</c>:
+        /// <code>{
+        ///   digest: string, # Required.
+        ///   script: string, # Required.
+        /// }
+        /// </code>
+        /// 
+        /// </remarks>
         public virtual Response GetConstitution(RequestContext context = null)
         {
             using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetConstitution");
@@ -770,6 +844,58 @@ namespace Azure.Security.ConfidentialLedger
             {
                 using HttpMessage message = CreateCreateLedgerEntryRequest(content, collectionId, context);
                 return _pipeline.ProcessMessage(message, context);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets the ledger entry at the specified transaction id. A collection id may optionally be specified to indicate the collection from which to fetch the value. </summary>
+        /// <param name="transactionId"> The String to use. </param>
+        /// <param name="collectionId"> The collection id. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="transactionId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="transactionId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerEntry. </remarks>
+        public virtual async Task<Response<LedgerEntry>> GetLedgerEntryValueAsync(string transactionId, string collectionId = null, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(transactionId, nameof(transactionId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetLedgerEntryValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await GetLedgerEntryAsync(transactionId, collectionId, context).ConfigureAwait(false);
+                return Response.FromValue(LedgerEntry.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets the ledger entry at the specified transaction id. A collection id may optionally be specified to indicate the collection from which to fetch the value. </summary>
+        /// <param name="transactionId"> The String to use. </param>
+        /// <param name="collectionId"> The collection id. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="transactionId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="transactionId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerEntry. </remarks>
+        public virtual Response<LedgerEntry> GetLedgerEntryValue(string transactionId, string collectionId = null, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(transactionId, nameof(transactionId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetLedgerEntryValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = GetLedgerEntry(transactionId, collectionId, context);
+                return Response.FromValue(LedgerEntry.FromResponse(response), response);
             }
             catch (Exception e)
             {
@@ -1240,6 +1366,48 @@ namespace Azure.Security.ConfidentialLedger
 
         /// <summary> Gets the current value available in the ledger. </summary>
         /// <param name="collectionId"> The collection id. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <remarks> Runs a custom action on LedgerEntry. </remarks>
+        public virtual async Task<Response<LedgerEntry>> GetCurrentLedgerEntryValueAsync(string collectionId = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetCurrentLedgerEntryValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await GetCurrentLedgerEntryAsync(collectionId, context).ConfigureAwait(false);
+                return Response.FromValue(LedgerEntry.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets the current value available in the ledger. </summary>
+        /// <param name="collectionId"> The collection id. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <remarks> Runs a custom action on LedgerEntry. </remarks>
+        public virtual Response<LedgerEntry> GetCurrentLedgerEntryValue(string collectionId = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetCurrentLedgerEntryValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = GetCurrentLedgerEntry(collectionId, context);
+                return Response.FromValue(LedgerEntry.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets the current value available in the ledger. </summary>
+        /// <param name="collectionId"> The collection id. </param>
         /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. Details of the response body schema are in the Remarks section below. </returns>
@@ -1370,6 +1538,56 @@ namespace Azure.Security.ConfidentialLedger
 
         /// <summary> Deletes a user from the Confidential Ledger. </summary>
         /// <param name="userId"> The user id, either an AAD object ID or certificate fingerprint. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Delete a LedgerUser. </remarks>
+        public virtual async Task<Response> DeleteUserValueAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(userId, nameof(userId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.DeleteUserValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await DeleteUserAsync(userId, context).ConfigureAwait(false);
+                return response;
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Deletes a user from the Confidential Ledger. </summary>
+        /// <param name="userId"> The user id, either an AAD object ID or certificate fingerprint. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Delete a LedgerUser. </remarks>
+        public virtual Response DeleteUserValue(string userId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(userId, nameof(userId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.DeleteUserValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = DeleteUser(userId, context);
+                return response;
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Deletes a user from the Confidential Ledger. </summary>
+        /// <param name="userId"> The user id, either an AAD object ID or certificate fingerprint. </param>
         /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
@@ -1434,6 +1652,56 @@ namespace Azure.Security.ConfidentialLedger
             {
                 using HttpMessage message = CreateDeleteUserRequest(userId, context);
                 return _pipeline.ProcessMessage(message, context);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets a user. </summary>
+        /// <param name="userId"> The user id, either an AAD object ID or certificate fingerprint. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerUser. </remarks>
+        public virtual async Task<Response<LedgerUser>> GetUserValueAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(userId, nameof(userId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetUserValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await GetUserAsync(userId, context).ConfigureAwait(false);
+                return Response.FromValue(LedgerUser.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets a user. </summary>
+        /// <param name="userId"> The user id, either an AAD object ID or certificate fingerprint. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="userId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerUser. </remarks>
+        public virtual Response<LedgerUser> GetUserValue(string userId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(userId, nameof(userId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerClient.GetUserValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = GetUser(userId, context);
+                return Response.FromValue(LedgerUser.FromResponse(response), response);
             }
             catch (Exception e)
             {
@@ -1726,7 +1994,7 @@ namespace Azure.Security.ConfidentialLedger
             request.Method = RequestMethod.Get;
             var uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/app/governance/constitution", false);
+            uri.AppendPath("/app", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
             return message;

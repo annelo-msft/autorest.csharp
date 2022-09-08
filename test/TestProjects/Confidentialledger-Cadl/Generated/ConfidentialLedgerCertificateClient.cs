@@ -6,10 +6,12 @@
 #nullable disable
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
+using ConfidentialLedger;
 
 namespace Azure.Security.ConfidentialLedger
 {
@@ -38,7 +40,7 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="endpoint"> The Uri to use. </param>
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new AzureSecurityConfidentialledgerClientOptions())
+        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new ConfidentialLedgerClientOptions())
         {
         }
 
@@ -47,17 +49,67 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential, AzureSecurityConfidentialledgerClientOptions options)
+        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential, ConfidentialLedgerClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNull(credential, nameof(credential));
-            options ??= new AzureSecurityConfidentialledgerClientOptions();
+            options ??= new ConfidentialLedgerClientOptions();
 
             ClientDiagnostics = new ClientDiagnostics(options, true);
             _tokenCredential = credential;
             _pipeline = HttpPipelineBuilder.Build(options, Array.Empty<HttpPipelinePolicy>(), new HttpPipelinePolicy[] { new BearerTokenAuthenticationPolicy(_tokenCredential, AuthorizationScopes) }, new ResponseClassifier());
             _endpoint = endpoint;
             _apiVersion = options.Version;
+        }
+
+        /// <summary> Gets identity information for a Confidential Ledger instance. </summary>
+        /// <param name="ledgerId"> Id for the ledger. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ledgerId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ledgerId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerIdentityInformation. </remarks>
+        public virtual async Task<Response<LedgerIdentityInformation>> GetLedgerIdentityValueAsync(string ledgerId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ledgerId, nameof(ledgerId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerCertificateClient.GetLedgerIdentityValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = await GetLedgerIdentityAsync(ledgerId, context).ConfigureAwait(false);
+                return Response.FromValue(LedgerIdentityInformation.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Gets identity information for a Confidential Ledger instance. </summary>
+        /// <param name="ledgerId"> Id for the ledger. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ledgerId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ledgerId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks> Get a LedgerIdentityInformation. </remarks>
+        public virtual Response<LedgerIdentityInformation> GetLedgerIdentityValue(string ledgerId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ledgerId, nameof(ledgerId));
+
+            using var scope = ClientDiagnostics.CreateScope("ConfidentialLedgerCertificateClient.GetLedgerIdentityValue");
+            scope.Start();
+            try
+            {
+                RequestContext context = FromCancellationToken(cancellationToken);
+                Response response = GetLedgerIdentity(ledgerId, context);
+                return Response.FromValue(LedgerIdentityInformation.FromResponse(response), response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
         }
 
         /// <summary> Gets identity information for a Confidential Ledger instance. </summary>
@@ -181,6 +233,17 @@ namespace Azure.Security.ConfidentialLedger
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
             return message;
+        }
+
+        private static RequestContext DefaultRequestContext = new RequestContext();
+        internal static RequestContext FromCancellationToken(CancellationToken cancellationToken = default)
+        {
+            if (!cancellationToken.CanBeCanceled)
+            {
+                return DefaultRequestContext;
+            }
+
+            return new RequestContext() { CancellationToken = cancellationToken };
         }
 
         private static ResponseClassifier _responseClassifier200;
