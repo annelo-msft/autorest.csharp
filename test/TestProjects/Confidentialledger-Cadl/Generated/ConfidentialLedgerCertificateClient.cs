@@ -38,7 +38,7 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="endpoint"> The Uri to use. </param>
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new AzureSecurityConfidentialledgerClientOptions())
+        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential) : this(endpoint, credential, new ConfidentialLedgerClientOptions())
         {
         }
 
@@ -47,11 +47,11 @@ namespace Azure.Security.ConfidentialLedger
         /// <param name="credential"> A credential used to authenticate to an Azure Service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential, AzureSecurityConfidentialledgerClientOptions options)
+        public ConfidentialLedgerCertificateClient(Uri endpoint, TokenCredential credential, ConfidentialLedgerClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNull(credential, nameof(credential));
-            options ??= new AzureSecurityConfidentialledgerClientOptions();
+            options ??= new ConfidentialLedgerClientOptions();
 
             ClientDiagnostics = new ClientDiagnostics(options, true);
             _tokenCredential = credential;
@@ -77,10 +77,8 @@ namespace Azure.Security.ConfidentialLedger
         /// Response response = await client.GetLedgerIdentityAsync("<ledgerId>");
         /// 
         /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
-        /// Console.WriteLine(result.GetProperty("statusCode").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("contents").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("collectionId").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("transactionId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerTlsCertificate").ToString());
         /// ]]></code>
         /// </example>
         /// <remarks>
@@ -90,18 +88,10 @@ namespace Azure.Security.ConfidentialLedger
         /// 
         /// Response Body:
         /// 
-        /// Schema for <c>ResourceOkResponse</c>:
+        /// Schema for <c>LedgerIdentityInformation</c>:
         /// <code>{
-        ///   statusCode: number, # Required.
-        ///   value: [
-        ///     {
-        ///       contents: string, # Required.
-        ///       collectionId: string, # Required.
-        ///       transactionId: string, # Required.
-        ///     }
-        ///   ], # Required.
-        ///   nextLink: {
-        ///   }, # Optional.
+        ///   ledgerId: string, # Required.
+        ///   ledgerTlsCertificate: string, # Required.
         /// }
         /// </code>
         /// 
@@ -141,10 +131,8 @@ namespace Azure.Security.ConfidentialLedger
         /// Response response = client.GetLedgerIdentity("<ledgerId>");
         /// 
         /// JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
-        /// Console.WriteLine(result.GetProperty("statusCode").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("contents").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("collectionId").ToString());
-        /// Console.WriteLine(result.GetProperty("value")[0].GetProperty("transactionId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerId").ToString());
+        /// Console.WriteLine(result.GetProperty("ledgerTlsCertificate").ToString());
         /// ]]></code>
         /// </example>
         /// <remarks>
@@ -154,18 +142,10 @@ namespace Azure.Security.ConfidentialLedger
         /// 
         /// Response Body:
         /// 
-        /// Schema for <c>ResourceOkResponse</c>:
+        /// Schema for <c>LedgerIdentityInformation</c>:
         /// <code>{
-        ///   statusCode: number, # Required.
-        ///   value: [
-        ///     {
-        ///       contents: string, # Required.
-        ///       collectionId: string, # Required.
-        ///       transactionId: string, # Required.
-        ///     }
-        ///   ], # Required.
-        ///   nextLink: {
-        ///   }, # Optional.
+        ///   ledgerId: string, # Required.
+        ///   ledgerTlsCertificate: string, # Required.
         /// }
         /// </code>
         /// 
