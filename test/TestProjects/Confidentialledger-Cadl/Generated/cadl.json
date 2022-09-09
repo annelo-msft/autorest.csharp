@@ -1,0 +1,1284 @@
+{
+ "$id": "1",
+ "Name": "azure.security.confidentialledger",
+ "ApiVersions": [
+  "2022-05-13"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "Name": "LedgerQueryState",
+   "Namespace": "ConfidentialLedger",
+   "Description": "State of a ledger query.",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "Loading",
+     "Value": "Loading"
+    },
+    {
+     "$id": "4",
+     "Name": "Ready",
+     "Value": "Ready"
+    }
+   ],
+   "IsExtensible": true,
+   "IsNullable": false
+  },
+  {
+   "$id": "5",
+   "Name": "TransactionState",
+   "Namespace": "ConfidentialLedger",
+   "Description": "Represents the state of the transaction.",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "6",
+     "Name": "Committed",
+     "Value": "Committed"
+    },
+    {
+     "$id": "7",
+     "Name": "Pending",
+     "Value": "Pending"
+    }
+   ],
+   "IsExtensible": true,
+   "IsNullable": false
+  },
+  {
+   "$id": "8",
+   "Name": "LedgerUserRole",
+   "Namespace": "ConfidentialLedger",
+   "Description": "Represents an assignable role.",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "9",
+     "Name": "Administrator",
+     "Value": "Administrator"
+    },
+    {
+     "$id": "10",
+     "Name": "Contributor",
+     "Value": "Contributor"
+    },
+    {
+     "$id": "11",
+     "Name": "Reader",
+     "Value": "Reader"
+    }
+   ],
+   "IsExtensible": true,
+   "IsNullable": false
+  }
+ ],
+ "Models": [
+  {
+   "$id": "12",
+   "Name": "Collection",
+   "Namespace": "ConfidentialLedger",
+   "Description": "Identifier for collections.",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "13",
+     "Name": "collectionId",
+     "SerializedName": "collectionId",
+     "Description": "",
+     "Type": {
+      "$id": "14",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    }
+   ]
+  },
+  {
+   "$id": "15",
+   "Name": "Constitution",
+   "Namespace": "ConfidentialLedger",
+   "Description": "The governance script for the application",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "16",
+     "Name": "digest",
+     "SerializedName": "digest",
+     "Description": "",
+     "Type": {
+      "$id": "17",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "18",
+     "Name": "script",
+     "SerializedName": "script",
+     "Description": "",
+     "Type": {
+      "$id": "19",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    }
+   ]
+  },
+  {
+   "$id": "20",
+   "Name": "LedgerEntry",
+   "Namespace": "ConfidentialLedger",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "21",
+     "Name": "contents",
+     "SerializedName": "contents",
+     "Description": "",
+     "Type": {
+      "$id": "22",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "23",
+     "Name": "collectionId",
+     "SerializedName": "collectionId",
+     "Description": "",
+     "Type": {
+      "$id": "24",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": true,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "25",
+     "Name": "transactionId",
+     "SerializedName": "transactionId",
+     "Description": "",
+     "Type": {
+      "$id": "26",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": true,
+     "IsDiscriminator": false
+    }
+   ]
+  },
+  {
+   "$id": "27",
+   "Name": "TransactionReceipt",
+   "Namespace": "ConfidentialLedger",
+   "Description": "A receipt certifying the transaction at the specified id.",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "28",
+     "Name": "receipt",
+     "SerializedName": "receipt",
+     "Description": "",
+     "Type": {
+      "$id": "29",
+      "Name": "ReceiptContents",
+      "Namespace": "ConfidentialLedger",
+      "IsNullable": false,
+      "Properties": []
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "30",
+     "Name": "state",
+     "SerializedName": "state",
+     "Description": "",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "31",
+     "Name": "transactionId",
+     "SerializedName": "transactionId",
+     "Description": "",
+     "Type": {
+      "$id": "32",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    }
+   ]
+  },
+  {
+   "$ref": "29"
+  },
+  {
+   "$id": "33",
+   "Name": "TransactionStatus",
+   "Namespace": "ConfidentialLedger",
+   "Description": "Response returned to a query for the transaction status.",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "34",
+     "Name": "state",
+     "SerializedName": "state",
+     "Description": "",
+     "Type": {
+      "$ref": "5"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "35",
+     "Name": "transactionId",
+     "SerializedName": "transactionId",
+     "Description": "",
+     "Type": {
+      "$id": "36",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    }
+   ]
+  },
+  {
+   "$id": "37",
+   "Name": "LedgerUser",
+   "Namespace": "ConfidentialLedger",
+   "Description": "Details about a Confidential ledger user.",
+   "IsNullable": false,
+   "Properties": [
+    {
+     "$id": "38",
+     "Name": "userId",
+     "SerializedName": "userId",
+     "Description": "",
+     "Type": {
+      "$id": "39",
+      "Name": "string",
+      "Kind": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    },
+    {
+     "$id": "40",
+     "Name": "assignedRole",
+     "SerializedName": "assignedRole",
+     "Description": "",
+     "Type": {
+      "$ref": "8"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "41",
+   "Name": "ConfidentialLedger",
+   "Operations": [
+    {
+     "$id": "42",
+     "Name": "listCollections",
+     "Summary": "Retrieves a list of collection ids present in the Confidential Ledger",
+     "Description": "Collection ids are user-created collections of ledger entries",
+     "Parameters": [
+      {
+       "$id": "43",
+       "Name": "ledgerUri",
+       "NameInRequest": "ledgerUri",
+       "Type": {
+        "$id": "44",
+        "Name": "Uri",
+        "Kind": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "45",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "46",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$id": "47",
+        "Type": {
+         "$id": "48",
+         "Name": "String",
+         "Kind": "String",
+         "IsNullable": false
+        },
+        "Value": "2022-05-13"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "49",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "12"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/collections",
+     "BufferResponse": false
+    },
+    {
+     "$id": "50",
+     "Name": "getEnclaveQuotes",
+     "Summary": "Gets quotes for all nodes of the Confidential Ledger.",
+     "Description": "A quote is an SGX enclave measurement that can be used to verify the validity of a node and its enclave.",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "51",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "52",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "53",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/enclaveQuotes",
+     "BufferResponse": false
+    },
+    {
+     "$id": "54",
+     "Name": "getConstitution",
+     "Summary": "Gets the constitution used for governance.",
+     "Description": "The constitution is a script that assesses and applies proposals from consortium members.",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "55",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "56",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "57",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "15"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/governance/constitution",
+     "BufferResponse": false,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "58",
+     "Name": "getConsortiumMembers",
+     "Summary": "Gets the consortium members.",
+     "Description": "Consortium members can manage the Confidential Ledger.",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "59",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "60",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "61",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/governance/members",
+     "BufferResponse": false
+    },
+    {
+     "$id": "62",
+     "Name": "ListLedgerEntries",
+     "Summary": "Gets ledger entries from a collection corresponding to a range.",
+     "Description": "A collection id may optionally be specified. Only entries in the specified (or default) collection will be returned.",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "63",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "64",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "65",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "20"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions",
+     "BufferResponse": false
+    },
+    {
+     "$id": "66",
+     "Name": "createLedgerEntry",
+     "Summary": "Writes a ledger entry.",
+     "Description": "A collection id may optionally be specified.",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "67",
+       "Name": "collectionId",
+       "NameInRequest": "collectionId",
+       "Description": "The collection id.",
+       "Type": {
+        "$id": "68",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "69",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "70",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "71",
+       "Name": "LedgerEntry",
+       "NameInRequest": "LedgerEntry",
+       "Type": {
+        "$ref": "20"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "72",
+       "StatusCodes": [
+        201
+       ],
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions",
+     "BufferResponse": false
+    },
+    {
+     "$id": "73",
+     "Name": "getLedgerEntry",
+     "Summary": "Gets the ledger entry at the specified transaction id. A collection id may optionally be specified to indicate the collection from which to fetch the value.",
+     "Description": "Get a LedgerEntry",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "74",
+       "Name": "transactionId",
+       "NameInRequest": "transactionId",
+       "Type": {
+        "$id": "75",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "76",
+       "Name": "collectionId",
+       "NameInRequest": "collectionId",
+       "Description": "The collection id.",
+       "Type": {
+        "$id": "77",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "78",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "79",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "80",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "20"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions/{transactionId}",
+     "BufferResponse": false
+    },
+    {
+     "$id": "81",
+     "Name": "getReceipt",
+     "Summary": "Gets a receipt certifying ledger contents at a particular transaction id.",
+     "Description": "Runs a custom action on LedgerEntry",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "82",
+       "Name": "transactionId",
+       "NameInRequest": "transactionId",
+       "Type": {
+        "$id": "83",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "84",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "85",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "86",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "27"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions/{transactionId}/receipt",
+     "BufferResponse": false
+    },
+    {
+     "$id": "87",
+     "Name": "getTransactionStatus",
+     "Summary": "Gets a receipt certifying ledger contents at a particular transaction id.",
+     "Description": "Runs a custom action on LedgerEntry",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "88",
+       "Name": "transactionId",
+       "NameInRequest": "transactionId",
+       "Type": {
+        "$id": "89",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "90",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "91",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "92",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "33"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions/{transactionId}/status",
+     "BufferResponse": false
+    },
+    {
+     "$id": "93",
+     "Name": "getCurrentLedgerEntry",
+     "Summary": "Gets the current value available in the ledger.",
+     "Description": "Runs a custom action on LedgerEntry",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "94",
+       "Name": "collectionId",
+       "NameInRequest": "collectionId",
+       "Description": "The collection id.",
+       "Type": {
+        "$id": "95",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "96",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "97",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "98",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "20"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/transactions:getCurrentLedgerEntry",
+     "BufferResponse": false
+    },
+    {
+     "$id": "99",
+     "Name": "deleteUser",
+     "Summary": "Deletes a user from the Confidential Ledger.",
+     "Description": "Delete a LedgerUser",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "100",
+       "Name": "userId",
+       "NameInRequest": "userId",
+       "Description": "The user id, either an AAD object ID or certificate fingerprint.",
+       "Type": {
+        "$id": "101",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "102",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "103",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "104",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "DELETE",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/users/{userId}",
+     "BufferResponse": false
+    },
+    {
+     "$id": "105",
+     "Name": "getUser",
+     "Summary": "Gets a user.",
+     "Description": "Get a LedgerUser",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "106",
+       "Name": "userId",
+       "NameInRequest": "userId",
+       "Description": "The user id, either an AAD object ID or certificate fingerprint.",
+       "Type": {
+        "$id": "107",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "108",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "109",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "110",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "37"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/users/{userId}",
+     "BufferResponse": false
+    },
+    {
+     "$id": "111",
+     "Name": "createOrUpdateUser",
+     "Summary": "Adds a user or updates a user's fields.",
+     "Description": "Creates or updates a LedgerUser",
+     "Parameters": [
+      {
+       "$ref": "43"
+      },
+      {
+       "$id": "112",
+       "Name": "userId",
+       "NameInRequest": "userId",
+       "Description": "The user id, either an AAD object ID or certificate fingerprint.",
+       "Type": {
+        "$id": "113",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "114",
+       "Name": "content-type",
+       "NameInRequest": "content-type",
+       "Type": {
+        "$id": "115",
+        "Name": "String",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "DefaultValue": {
+        "$id": "116",
+        "Type": {
+         "$ref": "115"
+        },
+        "Value": "application/merge-patch+json"
+       },
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "117",
+       "Name": "api-version",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "118",
+        "Name": "string",
+        "Kind": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "47"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "119",
+       "Name": "LedgerUser",
+       "NameInRequest": "LedgerUser",
+       "Description": "Details about a Confidential ledger user.",
+       "Type": {
+        "$ref": "37"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "120",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "37"
+       },
+       "BodyMediaType": "Json"
+      },
+      {
+       "$id": "121",
+       "StatusCodes": [
+        201
+       ],
+       "BodyType": {
+        "$ref": "37"
+       },
+       "BodyMediaType": "Json"
+      }
+     ],
+     "HttpMethod": "PATCH",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{ledgerUri}",
+     "Path": "/app/users/{userId}",
+     "RequestMediaTypes": [
+      "application/merge-patch+json"
+     ],
+     "BufferResponse": false,
+     "GenerateConvenienceMethod": false
+    }
+   ],
+   "Protocol": {
+    "$id": "122"
+   }
+  }
+ ]
+}
