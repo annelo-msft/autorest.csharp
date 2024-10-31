@@ -4,7 +4,7 @@
     <AssemblyTitle>Azure SDK Code Generation SimplePost for Azure Data Plane</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
     <PackageTags>SimplePost</PackageTags>
-    <TargetFrameworks>$(RequiredTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <IncludeOperationsSharedSource>true</IncludeOperationsSharedSource>
   </PropertyGroup>
 
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Core" />
-    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Azure.Core" Version="1.44.1" />
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
   </ItemGroup>
 </Project>
